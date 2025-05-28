@@ -21,6 +21,7 @@ class Handler:
 
 class Component:
     name: str
+    execution_order: int
     handlers: list[Handler]
 
     def get_default_storage(self):
@@ -34,8 +35,9 @@ class Component:
 class _BuiltCustomComponent(Component):
     storage_data: dict[str, Any]
 
-    def __init__(self, name: str, handlers: list[Handler], **kwargs):
+    def __init__(self, name: str, execution_order: int, handlers: list[Handler], **kwargs):
         self.name = name
+        self.execution_order = execution_order
         self.handlers = handlers
         self.storage_data = kwargs
 
@@ -50,9 +52,10 @@ class CustomComponent:
     def addHandler(self, checker: CheckerT, executioner: ExecutionerT) -> None:
         self.handlers.append(Handler(checker, executioner))
 
-    def build(self, name: str, **kwargs) -> _BuiltCustomComponent:
+    def build(self, name: str, execution_order: int, **kwargs) -> _BuiltCustomComponent:
         return _BuiltCustomComponent(
             name,
+            execution_order,
             self.handlers,
             **kwargs,
         )
