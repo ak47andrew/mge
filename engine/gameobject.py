@@ -7,6 +7,13 @@ class GameObject:
     components: dict[str, Component]
     components_to_run: PriorityList[Component]
     storage: dict[str, dict[str, Any]]
+    priority: int
+
+    def __init__(self, priority: int = 0) -> None:
+        self.components = {}
+        self.components_to_run = PriorityList()
+        self.storage = {}
+        self.priority = priority
 
     @overload
     def get_storage(self, component: str) -> dict[str, Any]:
@@ -26,6 +33,7 @@ class GameObject:
             raise ValueError(f"Component '{component.name}' already exists")
         self.components[component.name] = component
         self.storage[component.name] = component.get_default_storage()
+        self.components_to_run.add(component, component.execution_order)
 
     @overload
     def remove_component(self, component: str) -> None:
@@ -42,4 +50,4 @@ class GameObject:
             raise ValueError(f"Component '{component}' does not exist")
         del self.storage[component]
         del self.components[component]
-
+        self.components_to_run.remove(component)
