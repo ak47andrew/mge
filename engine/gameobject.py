@@ -2,6 +2,8 @@ from typing import Any
 from .component import Component
 from typing import overload
 from .utils import PriorityList
+from .game import Game
+from .scene import Scene, SceneManager
 
 class GameObject:
     name: str
@@ -64,6 +66,6 @@ class GameObject:
     def set_active(self, active: bool) -> None:
         self.active = active
 
-    def run(self) -> None:
+    def run(self, game: Game, scene_manager: SceneManager, scene: Scene) -> None:
         for component in self.components_to_run:
-            component[0].run(self)
+            component[0].run(game, scene_manager, scene, self)

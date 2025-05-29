@@ -1,5 +1,6 @@
 from .gameobject import GameObject
 from .utils import PriorityList
+from .game import Game
 from typing import Self, Optional, overload
 
 
@@ -64,10 +65,10 @@ class Scene:
     def set_active(self, active: bool) -> None:
         self.active = active
 
-    def run(self):
+    def run(self, game: Game, screen_manager: 'SceneManager'):
         for part in self.to_run:
             if part[0].active:
-                part[0].run()
+                part[0].run(game, screen_manager)
 
     def on_load(self):
         for game_object in self.gameObjects.values():
@@ -84,6 +85,9 @@ class SceneManager:
 
     def get_scene(self, name: str) -> Optional[Scene]:
         return self.scenes.get(name)
+
+    def get_current_scene(self) -> Optional[Scene]:
+        return self.current_scene
 
     def add_scene(self, scene: Scene) -> None:
         if scene.name in self.scenes:
@@ -102,3 +106,25 @@ class SceneManager:
         if isinstance(scene, Scene):
             self.remove_scene(scene.name)
         del self.scenes[scene]
+
+    def change_scene(self, name: Optional[str]) -> None:
+        if name is None:  # This, pretty much, means we want to stop the game.
+                          # The only exception is changing to None and then setting new one,
+                          # but that's just stupid to do it this way tbh
+            self.current_scene = None
+            return
+
+        if name not in self.scenes:
+            raise ValueError(f"Scene '{name}' does not exist")
+        if self.current_scene:
+            raise RuntimeError("You really wanted to change scene to itself?? What a funny guy. Why did you expect that to do???" 
+                               "You might want to reset the game state or something like that instead." 
+                               "Good luck with that. Just don't change scene to itself.")
+
+        self.current_scene = self.scenes[name]
+        self.current_scene.on_load()
+
+    def run(self, game: Game) -> bool:
+        if self.current_scene is None:
+            return False
+        self.current_scene.run(game, self)
