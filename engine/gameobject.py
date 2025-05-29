@@ -42,3 +42,4 @@ class GameObject:
             raise ValueError(f"Component '{component}' does not exist")
         del self.storage[component]
         del self.components[component]
+

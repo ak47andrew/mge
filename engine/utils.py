@@ -15,7 +15,7 @@ class PriorityList[T]:
     def get(self, item: T) -> tuple[T, int] | None:
         for i, (x, priority) in enumerate(self.data):
             if x == item:
-                return (x, priority)
+                return x, priority
         return None
 
     def remove(self, item: T) -> None:

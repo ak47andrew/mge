@@ -1,5 +1,7 @@
 # Moddable Game Engine (MGE)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ak47andrew/mge)
+
 ## Description
 This is just a simple little project to learn how to handle modding and public API. 
 I just got a bit of determination out of YouTube video as usual and urgent to create something. 
