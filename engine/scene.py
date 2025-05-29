@@ -75,4 +75,30 @@ class Scene:
 
 
 class SceneManager:
-    pass
+    scenes: dict[str, Scene]
+    current_scene: Optional[Scene]
+
+    def __init__(self):
+        self.scenes = {}
+        self.current_scene = None
+
+    def get_scene(self, name: str) -> Optional[Scene]:
+        return self.scenes.get(name)
+
+    def add_scene(self, scene: Scene) -> None:
+        if scene.name in self.scenes:
+            raise ValueError(f"Scene '{scene.name}' already exists")
+        self.scenes[scene.name] = scene
+
+    @overload
+    def remove_scene(self, scene: str) -> None:
+       ...
+
+    @overload
+    def remove_scene(self, scene: Scene) -> None:
+       ...
+
+    def remove_scene(self, scene: Scene | str) -> None:
+        if isinstance(scene, Scene):
+            self.remove_scene(scene.name)
+        del self.scenes[scene]
