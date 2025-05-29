@@ -4,16 +4,25 @@ from typing import overload
 from .utils import PriorityList
 
 class GameObject:
+    name: str
     components: dict[str, Component]
     components_to_run: PriorityList[Component]
     storage: dict[str, dict[str, Any]]
     priority: int
+    active: bool
 
-    def __init__(self, priority: int = 0) -> None:
+    def __init__(self, name: str, priority: int = 0) -> None:
         self.components = {}
         self.components_to_run = PriorityList()
         self.storage = {}
+        self.name = name
         self.priority = priority
+        self.active = True
+
+    def reinit(self):
+        self.storage = {}
+        for component in self.components.values():
+            self.storage[component.name] = component.get_default_storage()
 
     @overload
     def get_storage(self, component: str) -> dict[str, Any]:
@@ -48,6 +57,13 @@ class GameObject:
             self.remove_component(component.name)
         if component not in self.components:
             raise ValueError(f"Component '{component}' does not exist")
+        self.components_to_run.remove(self.components[component])
         del self.storage[component]
         del self.components[component]
-        self.components_to_run.remove(component)
+
+    def set_active(self, active: bool) -> None:
+        self.active = active
+
+    def run(self) -> None:
+        for component in self.components_to_run:
+            component[0].run(self)

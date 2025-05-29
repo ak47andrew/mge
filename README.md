@@ -2,6 +2,9 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ak47andrew/mge)
 
+> [!CAUTION]
+> Engine is still under active development and core features (as well as written in this README) can be missing. Also, this README can be outdated: current focus is code and not documentation
+
 ## Description
 This is just a simple little project to learn how to handle modding and public API. 
 I just got a bit of determination out of YouTube video as usual and urgent to create something. 
