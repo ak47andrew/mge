@@ -68,7 +68,10 @@ class Scene:
     def run(self, game: Game, screen_manager: 'SceneManager'):
         for part in self.to_run:
             if part[0].active:
-                part[0].run(game, screen_manager)
+                if isinstance(part[0], Scene):
+                    part[0].run(game, screen_manager)
+                else:
+                    part[0].run(game, screen_manager, self)
 
     def on_load(self):
         for game_object in self.gameObjects.values():
