@@ -1,7 +1,7 @@
 from .gameobject import GameObject
-from .utils import PriorityList
-from .game import Game
+from .utils import PriorityList, Context
 from typing import Self, Optional, overload
+
 
 
 class Scene:
@@ -37,7 +37,7 @@ class Scene:
 
     def remove_game_object(self, game_object: GameObject | str) -> None:
         if isinstance(game_object, GameObject):
-            self.remove_game_object(game_object.name)
+            return self.remove_game_object(game_object.name)
 
         self.to_run.remove(self.gameObjects[game_object])
         del self.gameObjects[game_object]
@@ -58,20 +58,18 @@ class Scene:
 
     def remove_sub_scene(self, sub_scene: Self | str) -> None:
         if isinstance(sub_scene, Scene):
-            self.remove_sub_scene(sub_scene.name)
+            return self.remove_sub_scene(sub_scene.name)
         self.to_run.remove(self.subScenes[sub_scene])
         del self.subScenes[sub_scene]
 
     def set_active(self, active: bool) -> None:
         self.active = active
 
-    def run(self, game: Game, screen_manager: 'SceneManager'):
+    def run(self, ctx: Context):
         for part in self.to_run:
+            ctx.scene = self
             if part[0].active:
-                if isinstance(part[0], Scene):
-                    part[0].run(game, screen_manager)
-                else:
-                    part[0].run(game, screen_manager, self)
+                part[0].run(ctx)
 
     def on_load(self):
         for game_object in self.gameObjects.values():
@@ -107,10 +105,24 @@ class SceneManager:
 
     def remove_scene(self, scene: Scene | str) -> None:
         if isinstance(scene, Scene):
-            self.remove_scene(scene.name)
+            return self.remove_scene(scene.name)
         del self.scenes[scene]
 
-    def change_scene(self, name: Optional[str]) -> None:
+    @overload
+    def change_scene(self, name: None):
+        pass
+
+    @overload
+    def change_scene(self, scene: Scene):
+        pass
+
+    @overload
+    def change_scene(self, scene: str):
+        pass
+
+    def change_scene(self, name: None | Scene | str) -> None:
+        if isinstance(name, Scene):
+            return self.change_scene(name.name)
         if name is None:  # This, pretty much, means we want to stop the game.
                           # The only exception is changing to None and then setting new one,
                           # but that's just stupid to do it this way tbh
@@ -127,7 +139,8 @@ class SceneManager:
         self.current_scene = self.scenes[name]
         self.current_scene.on_load()
 
-    def run(self, game: Game) -> bool:
+    def run(self, ctx: Context) -> bool:
         if self.current_scene is None:
             return False
-        self.current_scene.run(game, self)
+        ctx.sceneManager = self
+        self.current_scene.run(ctx)

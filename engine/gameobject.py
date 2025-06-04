@@ -1,9 +1,7 @@
 from typing import Any
 from .component import Component
 from typing import overload
-from .utils import PriorityList
-from .game import Game
-from .scene import Scene, SceneManager
+from .utils import PriorityList, Context
 
 class GameObject:
     name: str
@@ -56,7 +54,7 @@ class GameObject:
 
     def remove_component(self, component: str | Component) -> None:
         if isinstance(component, Component):
-            self.remove_component(component.name)
+            return self.remove_component(component.name)
         if component not in self.components:
             raise ValueError(f"Component '{component}' does not exist")
         self.components_to_run.remove(self.components[component])
@@ -66,6 +64,7 @@ class GameObject:
     def set_active(self, active: bool) -> None:
         self.active = active
 
-    def run(self, game: Game, scene_manager: SceneManager, scene: Scene) -> None:
+    def run(self, ctx: Context) -> None:
         for component in self.components_to_run:
-            component[0].run(game, scene_manager, scene, self)
+            ctx.gameObject = self
+            component[0].run(ctx)

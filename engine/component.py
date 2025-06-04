@@ -1,11 +1,9 @@
-from .gameobject import GameObject
-from .game import Game
-from .scene import Scene, SceneManager
 from typing import Callable, Any
+from .utils import Context
 
 # types
-CheckerT = Callable[[Game, SceneManager, Scene, GameObject, 'Component'], bool]
-ExecutionerT = Callable[[Game, SceneManager, Scene, GameObject, 'Component'], Any]
+CheckerT = Callable[[Context], bool]
+ExecutionerT = Callable[[Context], Any]
 
 
 class Handler:
@@ -16,9 +14,9 @@ class Handler:
         self.checker = checker
         self.executioner = executioner
 
-    def run(self, game: Game, scene_manager: SceneManager, scene: Scene, game_object: GameObject, component: 'Component') -> None:
-        if self.checker(game, scene_manager, scene, game_object, component):
-            self.executioner(game, scene_manager, scene, game_object, component)
+    def run(self, ctx: Context) -> None:
+        if self.checker(ctx):
+            self.executioner(ctx)
 
 
 class Component:
@@ -29,9 +27,10 @@ class Component:
     def get_default_storage(self):
         raise NotImplementedError("Subclasses must implement get_default_storage")
 
-    def run(self, game: Game, scene_manager: SceneManager, scene: Scene, game_object: GameObject) -> None:
+    def run(self, ctx: Context) -> None:
         for handler in self.handlers:
-            handler.run(game, scene_manager, scene, game_object, self)
+            ctx.component = self
+            handler.run(ctx)
 
 
 class _BuiltCustomComponent(Component):

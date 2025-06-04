@@ -1,3 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from .game import Game
+    from .scene import Scene, SceneManager
+    from .gameobject import GameObject
+    from .component import Component
+
+
 class PriorityList[T]:
     data: list[tuple[T, int]]
     # --- Magic methods ----
@@ -32,3 +42,18 @@ class PriorityList[T]:
             else:
                 high = mid
         return low
+
+
+class Context:
+    game: Optional[Game]
+    sceneManager: Optional[SceneManager]
+    scene: Optional[Scene]
+    gameObject: Optional[GameObject]
+    component: Optional[Component]
+
+    def __init__(self):
+        self.game = None
+        self.sceneManager = None
+        self.scene = None
+        self.gameObject = None
+        self.component = None
